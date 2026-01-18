@@ -1,20 +1,12 @@
 name: "Workflow Terraform Apply"
 
 on:
-  # ① mainブランチへのPRがクローズされた時に実行
   pull_request:
     branches:
       - main
     types:
       - closed
-  # ③ GitHubの画面から手動実行を可能にする
   workflow_dispatch:
-  # 他のワークフローからの呼び出し用
-  workflow_call:
-    inputs:
-      TF_VERSION:
-        type: string
-        required: true
 
 permissions:
   id-token: write
@@ -22,25 +14,22 @@ permissions:
   pull-requests: write
 
 env:
-  # あなたの環境に合わせて書き換えてください
   ROLE_TO_ASSUME: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/wpsite_role
   AWS_REGION: ap-northeast-1
-# GitHubに登録した値を、Terraformの変数として認識させる一行
   TF_VAR_aws_account_id: ${{ vars.AWS_ACCOUNT_ID }}
 
 jobs:
   terraform:
     name: "Terraform Apply"
     runs-on: ubuntu-latest
-    # ② マージされた時、または手動実行（workflow_dispatch）の時のみ実行する
-    if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
+    # マージされた時、または手動実行の時のみ実行
+    if: (github.event.pull_request.merged == true) || (github.event_name == 'workflow_dispatch')
  
     strategy:
-      fail-fast: false # 1つの環境が失敗しても他の環境のApplyを止めない設定
+      fail-fast: false
       matrix:
         directory:
           - "." 
-          # 将来 ["staging", "production"] のように増やせる   
     defaults:
       run:
         working-directory: ${{ matrix.directory }}
@@ -48,56 +37,35 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          # マージされた直後の最新コード（main）を取得
-          ref: ${{ github.ref }}
-          fetch-depth: 2
 
-      # .terraform-version からバージョンを取得
-      # defaults設定により、すでに ${{ matrix.directory }} 内にいるので cat するだけ
       - name: Get Terraform version
         id: terraform-version
-        run: |
-          TF_VERSION=$(cat .terraform-version)
-          echo "version=${TF_VERSION}" >> $GITHUB_OUTPUT
+        uses: bigwheel/get-terraform-version-action@v1.2.0
+        with:
+          path: "."
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: ${{ steps.terraform-version.outputs.version }}
+          terraform_version: ${{ steps.terraform-version.outputs.terraform-version }}
+
       - name: Setup AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ env.ROLE_TO_ASSUME }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Check if directory is not empty
-        id: check
-        run: |
-          if [ "$(ls -A .)" ]; then
-            echo "Directory is not empty"
-          else
-            echo "Directory is empty"
-            exit 1
-          fi
-
       - name: Terraform Init
-        id: init
         run: terraform init
 
       - name: Terraform Apply
         id: apply
-        # -auto-approve で対話型プロンプトをスキップ
         run: terraform apply -auto-approve -no-color
 
-      # Apply結果のログ整形（トラブルシューティング用）
       - name: Truncate terraform apply result
-        if: always() # Applyが失敗してもログは残す
+        if: always()
         run: |
-          apply_output=$(cat <<'EOF'
-          ${{ format('{0}{1}', steps.apply.outputs.stdout, steps.apply.outputs.stderr) }}
-          EOF
-          )
+          # ログを環境変数に格納
           echo "APPLY_LOG<<EOF" >> $GITHUB_ENV
-          echo "${apply_output}" | grep -v 'Refreshing state' | tail -c 65000 >> $GITHUB_ENV
+          echo "${{ steps.apply.outputs.stdout }}" | tail -c 60000 >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
