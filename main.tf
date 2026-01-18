@@ -19,5 +19,6 @@ terraform {
     bucket = "my-terraform-wpsite-state-wpsite"
     key    = "network/terraform.tfstate" # S3内での保存パス
     region = "ap-northeast-1"
+    tag = "tfstate"
   }
 }
