@@ -89,7 +89,7 @@ jobs:
 
       # ③ PRに結果をコメントとして投稿
       - name: Create comment from plan result
-        uses: actions/github-script@7
+        uses: actions/github-script@v6
         if: github.event_name == 'pull_request'
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
