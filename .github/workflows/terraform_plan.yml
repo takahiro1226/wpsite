@@ -1,0 +1,117 @@
+name: "Terraform Plan"
+
+on:
+  workflow_call:
+    inputs:
+      TF_VERSION:
+        type: string
+        required: true
+# ① mainブランチへのプルリクエストが作成・更新された時に実行
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize]
+
+
+permissions:
+  id-token: write      # AWS OIDC認証に必須
+  contents: read       # リポジトリ読み取り
+  pull-requests: write # PRにコメントを書き込むために必須
+
+env:
+  # あなたの環境に合わせて書き換えてください
+  ROLE_TO_ASSUME: arn:aws:iam::662478938633:role/wpsite_role
+  AWS_REGION: ap-northeast-1
+
+jobs:
+  terraform:
+    name: "Terraform Plan Check"
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        directory:
+          - "." # Terraformコードがリポジトリ直下にある場合は "."
+    defaults:
+      run:
+        working-directory: ${{ matrix.directory }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # ② .terraform-version からバージョンを取得
+      - name: Get Terraform version
+        id: terraform-version
+        uses: bigwheel/get-terraform-version-action@v1.2.0
+        with:
+          path: ${{ matrix.directory }}
+
+      # 取得したバージョンでセットアップ
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ steps.terraform-version.outputs.terraform-version }}
+
+      - name: Setup AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ env.ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Check if directory is not empty
+        id: check
+        run: |
+          if [ "$(ls -A .)" ]; then
+            echo "Directory is not empty"
+          else
+            echo "Directory is empty"
+            exit 1
+          fi
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
+      - name: Terraform Plan
+        id: plan
+        # planに失敗しても後続の「コメント投稿」を実行するために continue-on-error を使用
+        run: terraform plan -no-color
+        continue-on-error: true
+
+      # Planの結果が長すぎる場合に備えて整形
+      - name: Truncate terraform plan result
+        run: |
+          plan=$(cat <<'EOF'
+          ${{ format('{0}{1}', steps.plan.outputs.stdout, steps.plan.outputs.stderr) }}
+          EOF
+          )
+          echo "PLAN<<EOF" >> $GITHUB_ENV
+          echo "${plan}" | grep -v 'Refreshing state' | tail -c 65000 >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      # ③ PRに結果をコメントとして投稿
+      - name: Create comment from plan result
+        uses: actions/github-script@v8 # バージョンを最新に更新
+        if: github.event_name == 'pull_request'
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `#### Terraform Initialization ⚙️　\`${{ steps.init.outcome }}\`
+            #### Terraform Plan 📖 \`${{ steps.plan.outcome }}\`
+
+            <details><summary>Show Plan Result</summary>
+
+            \`\`\`terraform
+            ${ process.env.PLAN }
+            \`\`\`
+
+            </details>
+
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ matrix.directory }}\`, Workflow: \`${{ github.workflow }}\`*`;
+            #*Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ matrix.directory }}\`*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
