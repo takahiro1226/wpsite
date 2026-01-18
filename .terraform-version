@@ -1,4 +1,1 @@
 1.14.3
-#このActionを使用するのではなく、Add support for `.terraform-version` file · Issue #298 · hashicorp/setup-terraformで紹介されているように単に cat path/to/.terraform-version とする方法もあります。
-#その方法と比べてこのActionが優れているのは、tfenvの挙動とできる限り似せた挙動を取っていることです。
-#これにより .terraform-version 内のバージョン指定が正規表現でも対応できたり、 .terraform-version ファイルの位置が変わっても、ワークフローのyamlを書き換える必要なく、terraform コマンドの実行ディレクトリから順に親ディレクトリをたどって探してくれる、といった tfenv 互換の挙動を取ってくれます。
