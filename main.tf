@@ -13,3 +13,19 @@ terraform {
 provider "aws" {
     region = "ap-northeast-1"
 }
+
+terraform {
+  backend "s3" {
+    bucket = "my-terraform-wpsite-state-wpsite"
+    key    = "network/terraform.tfstate" # S3内での保存パス
+    region = "ap-northeast-1"
+  }
+}
+
+# その下に以前のコードを（VPCを作るなら）復活させます
+resource "aws_vpc" "example" {
+  cidr_block = "10.0.0.0/16"
+  tags = {
+    Name = "terraform-managed-vpc"
+  }
+}
