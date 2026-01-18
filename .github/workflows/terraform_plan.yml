@@ -43,8 +43,7 @@ jobs:
         id: terraform-version
         uses: bigwheel/get-terraform-version-action@v1.2.0
         with:
-          path: ${{ matrix.directory }}
-
+          path: "."
       # 取得したバージョンでセットアップ
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -90,7 +89,7 @@ jobs:
 
       # ③ PRに結果をコメントとして投稿
       - name: Create comment from plan result
-        uses: actions/github-script@v8 # バージョンを最新に更新
+        uses: actions/github-script@v7
         if: github.event_name == 'pull_request'
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -107,8 +106,6 @@ jobs:
             </details>
 
             *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ matrix.directory }}\`, Workflow: \`${{ github.workflow }}\`*`;
-            #*Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Working Directory: \`${{ matrix.directory }}\`*`;
-
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
