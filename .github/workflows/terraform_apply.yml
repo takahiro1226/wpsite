@@ -32,7 +32,17 @@ jobs:
     runs-on: ubuntu-latest
     # ② マージされた時、または手動実行（workflow_dispatch）の時のみ実行する
     if: github.event.pull_request.merged == true || github.event_name == 'workflow_dispatch'
-    
+ 
+    strategy:
+      fail-fast: false # 1つの環境が失敗しても他の環境のApplyを止めない設定
+      matrix:
+        directory:
+          - "." 
+          # 将来 ["staging", "production"] のように増やせる   
+    defaults:
+      run:
+        working-directory: ${{ matrix.directory }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -44,14 +54,15 @@ jobs:
       # .terraform-version からバージョンを取得
       - name: Get Terraform version
         id: terraform-version
-        uses: bigwheel/get-terraform-version-action@v1.2.0
-        with:
-          path: ${{ matrix.directory }}
+        run: |
+          # defaults設定により、すでに ${{ matrix.directory }} 内にいるので cat するだけ
+          TF_VERSION=$(cat .terraform-version)
+          echo "version=${TF_VERSION}" >> $GITHUB_OUTPUT
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: ${{ steps.terraform-version.outputs.terraform-version }}
-
+          terraform_version: ${{ steps.terraform-version.outputs.version }}
       - name: Setup AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
