@@ -46,8 +46,7 @@ jobs:
         id: terraform-version
         uses: bigwheel/get-terraform-version-action@v1.2.0
         with:
-          path: "."
-
+          path: ${{ matrix.directory }}
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
