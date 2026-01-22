@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: wordpress-mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wpuser
+      MYSQL_PASSWORD: wppassword
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+    networks:
+      - wordpress-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  wordpress:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wordpress-app
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wpuser
+      WORDPRESS_DB_PASSWORD: wppassword
+      WORDPRESS_DB_NAME: wordpress
+      # ローカル開発用のデバッグ設定
+      WORDPRESS_DEBUG: "1"
+      # Lambda方式のためBedrock環境変数不要
+    volumes:
+      - wordpress_data:/var/www/html
+      # Lambda方式のためプラグインマウント不要
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - wordpress-network
+
+volumes:
+  db_data:
+  wordpress_data:
+
+networks:
+  wordpress-network:
+    driver: bridge
