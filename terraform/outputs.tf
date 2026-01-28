@@ -453,69 +453,69 @@ output "phase8_summary" {
   EOT
 }
 
-# # ============================================
-# # Phase 9: ECS Service Outputs
-# # ============================================
+# ============================================
+# Phase 9: ECS Service Outputs
+# ============================================
 
-# output "ecs_service_name" {
-#   description = "ECS service name"
-#   value       = aws_ecs_service.wordpress.name
-# }
+output "ecs_service_name" {
+  description = "ECS service name"
+  value       = aws_ecs_service.wordpress.name
+}
 
-# output "ecs_service_id" {
-#   description = "ECS service ID"
-#   value       = aws_ecs_service.wordpress.id
-# }
+output "ecs_service_id" {
+  description = "ECS service ID"
+  value       = aws_ecs_service.wordpress.id
+}
 
-# output "phase9_summary" {
-#   description = "Phase 9 deployment summary"
-#   value = <<-EOT
+output "phase9_summary" {
+  description = "Phase 9 deployment summary"
+  value = <<-EOT
 
-#     ========================================
-#     Phase 9: ECS Service - Complete
-#     ========================================
+    ========================================
+    Phase 9: ECS Service - Complete
+    ========================================
 
-#     ECS Service:
-#     - Name: ${aws_ecs_service.wordpress.name}
-#     - Launch Type: Fargate
-#     - Desired Count: ${var.ecs_desired_count}
-#     - Platform Version: LATEST
+    ECS Service:
+    - Name: ${aws_ecs_service.wordpress.name}
+    - Launch Type: Fargate
+    - Desired Count: ${var.ecs_desired_count}
+    - Platform Version: LATEST
 
-#     Auto Scaling:
-#     - Min Capacity: ${var.ecs_min_capacity}
-#     - Max Capacity: ${var.ecs_max_capacity}
-#     - CPU Target: 70%
-#     - Memory Target: 80%
+    Auto Scaling:
+    - Min Capacity: ${var.ecs_min_capacity}
+    - Max Capacity: ${var.ecs_max_capacity}
+    - CPU Target: 70%
+    - Memory Target: 80%
 
-#     Network:
-#     - Subnets: ${length(aws_subnet.private)} private subnets
-#     - Security Group: ${aws_security_group.ecs.id}
-#     - Public IP: Disabled
+    Network:
+    - Subnets: ${length(aws_subnet.private)} private subnets
+    - Security Group: ${aws_security_group.ecs.id}
+    - Public IP: Disabled
 
-#     Load Balancer:
-#     - Target Group: ${aws_lb_target_group.wordpress.name}
-#     - Container Port: 80
+    Load Balancer:
+    - Target Group: ${aws_lb_target_group.wordpress.name}
+    - Container Port: 80
 
-#     Deployment:
-#     - Circuit Breaker: Enabled with rollback
-#     - Maximum: 200%
-#     - Minimum Healthy: 100%
+    Deployment:
+    - Circuit Breaker: Enabled with rollback
+    - Maximum: 200%
+    - Minimum Healthy: 100%
 
-#     CloudWatch Alarms:
-#     - CPU utilization > 85%
-#     - Memory utilization > 90%
-#     - Running task count < minimum
+    CloudWatch Alarms:
+    - CPU utilization > 85%
+    - Memory utilization > 90%
+    - Running task count < minimum
 
-#     WordPress URL: http://${aws_lb.main.dns_name}
+    WordPress URL: http://${aws_lb.main.dns_name}
 
-#     Next Steps:
-#     - Phase 10: Create Route53 DNS and ACM Certificate
-#     - Phase 11: Create Lambda for image generation
-#     - Phase 12: Create API Gateway webhook
+    Next Steps:
+    - Phase 10: Create Route53 DNS and ACM Certificate
+    - Phase 11: Create Lambda for image generation
+    - Phase 12: Create API Gateway webhook
 
-#     ========================================
-#   EOT
-# }
+    ========================================
+  EOT
+}
 
 # # # Phase 10+: Route53, Lambda & API Gateway Outputs
 # # output "api_gateway_url" {
