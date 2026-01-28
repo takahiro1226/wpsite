@@ -9,7 +9,7 @@ resource "random_password" "db_master_password" {
   length  = 32
   special = true
   # Exclude characters that might cause issues in connection strings
-  override_special = "!#$%&*()-_=+[]{}<>:?"
+  override_special = "!#$%&*()<>:?"
 }
 
 #--------------------------------------------------------------
@@ -141,7 +141,7 @@ resource "aws_db_option_group" "wordpress" {
   name_prefix              = "${local.name_prefix}-mysql80-"
   option_group_description = "MySQL 8.0 option group for WordPress"
   engine_name              = "mysql"
-  major_engine_version     = "8.0.40"
+  major_engine_version     = "8.0"
 
   tags = merge(
     local.common_tags,
