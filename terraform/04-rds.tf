@@ -205,8 +205,8 @@ resource "aws_db_instance" "wordpress" {
 
   # Monitoring and Logging
   enabled_cloudwatch_logs_exports = ["error", "general", "slowquery"]
-  performance_insights_enabled    = true
-  performance_insights_retention_period = 7
+  performance_insights_enabled    = false
+  #performance_insights_retention_period = 7
   monitoring_interval                   = 60 # Enhanced monitoring every 60 seconds
   monitoring_role_arn                   = aws_iam_role.rds_monitoring.arn
 
