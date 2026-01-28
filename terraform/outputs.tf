@@ -340,57 +340,57 @@ output "phase6_summary" {
   EOT
 }
 
-# # ============================================
-# # Phase 7: ECS Cluster Outputs
-# # ============================================
+# ============================================
+# Phase 7: ECS Cluster Outputs
+# ============================================
 
-# output "ecs_cluster_id" {
-#   description = "ECS cluster ID"
-#   value       = aws_ecs_cluster.main.id
-# }
+output "ecs_cluster_id" {
+  description = "ECS cluster ID"
+  value       = aws_ecs_cluster.main.id
+}
 
-# output "ecs_cluster_arn" {
-#   description = "ECS cluster ARN"
-#   value       = aws_ecs_cluster.main.arn
-# }
+output "ecs_cluster_arn" {
+  description = "ECS cluster ARN"
+  value       = aws_ecs_cluster.main.arn
+}
 
-# output "ecs_task_definition_arn" {
-#   description = "ECS task definition ARN"
-#   value       = aws_ecs_task_definition.wordpress.arn
-# }
+output "ecs_task_definition_arn" {
+  description = "ECS task definition ARN"
+  value       = aws_ecs_task_definition.wordpress.arn
+}
 
-# output "phase7_summary" {
-#   description = "Phase 7 deployment summary"
-#   value = <<-EOT
+output "phase7_summary" {
+  description = "Phase 7 deployment summary"
+  value = <<-EOT
 
-#     ========================================
-#     Phase 7: ECS Cluster & Task - Complete
-#     ========================================
+    ========================================
+    Phase 7: ECS Cluster & Task - Complete
+    ========================================
 
-#     ECS Cluster:
-#     - Cluster Name: ${aws_ecs_cluster.main.name}
-#     - Container Insights: Enabled
+    ECS Cluster:
+    - Cluster Name: ${aws_ecs_cluster.main.name}
+    - Container Insights: Enabled
 
-#     Task Definition:
-#     - Family: ${aws_ecs_task_definition.wordpress.family}
-#     - CPU: ${var.ecs_task_cpu} (0.5 vCPU)
-#     - Memory: ${var.ecs_task_memory}MB (1GB)
-#     - Network Mode: awsvpc
+    Task Definition:
+    - Family: ${aws_ecs_task_definition.wordpress.family}
+    - CPU: ${var.ecs_task_cpu} (0.5 vCPU)
+    - Memory: ${var.ecs_task_memory}MB (1GB)
+    - Network Mode: awsvpc
 
-#     IAM Roles:
-#     - Task Execution Role: ${aws_iam_role.ecs_task_execution.name}
-#     - Task Role: ${aws_iam_role.ecs_task.name}
+    IAM Roles:
+    - Task Execution Role: ${aws_iam_role.ecs_task_execution.name}
+    - Task Role: ${aws_iam_role.ecs_task.name}
 
-#     CloudWatch Logs:
-#     - Log Group: ${aws_cloudwatch_log_group.wordpress.name}
-#     - Retention: 7 days
+    CloudWatch Logs:
+    - Log Group: ${aws_cloudwatch_log_group.wordpress.name}
+    - Retention: 7 days
 
-#     Next Steps:
-#     - Phase 8: Create ALB
+    Next Steps:
+    - Phase 8: Create ALB
 
-#     ========================================
-#   EOT
-# }
+    ========================================
+  EOT
+}
 
 # # ============================================
 # # Phase 8: ALB Outputs
