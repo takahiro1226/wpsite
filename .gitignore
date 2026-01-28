@@ -45,3 +45,7 @@ terraform.rc
 
 #　Ignore .md files in the docker-compose.yml edits
 *.md
+
+# Ignore environment variable files
+.env
+.env.local
