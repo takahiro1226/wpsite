@@ -79,20 +79,76 @@ output "phase2_summary" {
 }
 
 # ============================================
-# Phase 3以降のOutputs（コメントアウト）
-# Phase 3で02-security-groups.tf, 03-nat-instance.tfを作成後にコメント解除
+# Phase 3: Security Groups and NAT Instance Outputs
 # ============================================
 
-# # Phase 3: NAT Instance Outputs
-# output "nat_instance_ids" {
-#   description = "NAT instance IDs"
-#   value       = aws_instance.nat[*].id
-# }
-# 
-# output "nat_instance_public_ips" {
-#   description = "NAT instance public IPs"
-#   value       = aws_eip.nat[*].public_ip
-# }
+# Security Group Outputs
+output "alb_security_group_id" {
+  description = "ALB security group ID"
+  value       = aws_security_group.alb.id
+}
+
+output "ecs_security_group_id" {
+  description = "ECS security group ID"
+  value       = aws_security_group.ecs.id
+}
+
+output "rds_security_group_id" {
+  description = "RDS security group ID"
+  value       = aws_security_group.rds.id
+}
+
+output "nat_security_group_id" {
+  description = "NAT instance security group ID"
+  value       = aws_security_group.nat.id
+}
+
+output "lambda_security_group_id" {
+  description = "Lambda security group ID"
+  value       = aws_security_group.lambda.id
+}
+
+# NAT Instance Outputs
+output "nat_instance_ids" {
+  description = "NAT instance IDs"
+  value       = aws_instance.nat[*].id
+}
+
+output "nat_instance_public_ips" {
+  description = "NAT instance public IPs"
+  value       = aws_eip.nat[*].public_ip
+}
+
+output "phase3_summary" {
+  description = "Phase 3 deployment summary"
+  value = <<-EOT
+
+    ========================================
+    Phase 3: Security Groups & NAT - Complete
+    ========================================
+
+    Security Groups:
+    - ALB SG: ${aws_security_group.alb.id}
+    - ECS SG: ${aws_security_group.ecs.id}
+    - RDS SG: ${aws_security_group.rds.id}
+    - NAT SG: ${aws_security_group.nat.id}
+    - Lambda SG: ${aws_security_group.lambda.id}
+
+    NAT Instances:
+    - Instance Type: ${var.nat_instance_type}
+    - Instance IDs: ${join(", ", aws_instance.nat[*].id)}
+    - Public IPs: ${join(", ", aws_eip.nat[*].public_ip)}
+
+    Cost Savings:
+    - Using NAT Instances (~$6/month) instead of NAT Gateway (~$64/month)
+    - Estimated monthly savings: ~$58
+
+    Next Steps:
+    - Phase 4: Create RDS MySQL Database
+
+    ========================================
+  EOT
+}
 
 # # Phase 4: RDS Outputs
 # output "rds_endpoint" {
