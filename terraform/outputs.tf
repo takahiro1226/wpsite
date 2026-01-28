@@ -392,66 +392,66 @@ output "phase7_summary" {
   EOT
 }
 
-# # ============================================
-# # Phase 8: ALB Outputs
-# # ============================================
+# ============================================
+# Phase 8: ALB Outputs
+# ============================================
 
-# output "alb_dns_name" {
-#   description = "ALB DNS name"
-#   value       = aws_lb.main.dns_name
-# }
+output "alb_dns_name" {
+  description = "ALB DNS name"
+  value       = aws_lb.main.dns_name
+}
 
-# output "alb_arn" {
-#   description = "ALB ARN"
-#   value       = aws_lb.main.arn
-# }
+output "alb_arn" {
+  description = "ALB ARN"
+  value       = aws_lb.main.arn
+}
 
-# output "alb_zone_id" {
-#   description = "ALB Zone ID for Route53 alias"
-#   value       = aws_lb.main.zone_id
-# }
+output "alb_zone_id" {
+  description = "ALB Zone ID for Route53 alias"
+  value       = aws_lb.main.zone_id
+}
 
-# output "target_group_arn" {
-#   description = "Target group ARN"
-#   value       = aws_lb_target_group.wordpress.arn
-# }
+output "target_group_arn" {
+  description = "Target group ARN"
+  value       = aws_lb_target_group.wordpress.arn
+}
 
-# output "phase8_summary" {
-#   description = "Phase 8 deployment summary"
-#   value = <<-EOT
+output "phase8_summary" {
+  description = "Phase 8 deployment summary"
+  value = <<-EOT
 
-#     ========================================
-#     Phase 8: Application Load Balancer - Complete
-#     ========================================
+    ========================================
+    Phase 8: Application Load Balancer - Complete
+    ========================================
 
-#     ALB Configuration:
-#     - Name: ${aws_lb.main.name}
-#     - DNS Name: ${aws_lb.main.dns_name}
-#     - Type: Application Load Balancer
-#     - Subnets: ${length(aws_subnet.public)} public subnets
+    ALB Configuration:
+    - Name: ${aws_lb.main.name}
+    - DNS Name: ${aws_lb.main.dns_name}
+    - Type: Application Load Balancer
+    - Subnets: ${length(aws_subnet.public)} public subnets
 
-#     Target Group:
-#     - Name: ${aws_lb_target_group.wordpress.name}
-#     - Protocol: HTTP
-#     - Port: 80
-#     - Health Check: / (every 30s)
+    Target Group:
+    - Name: ${aws_lb_target_group.wordpress.name}
+    - Protocol: HTTP
+    - Port: 80
+    - Health Check: / (every 30s)
 
-#     Listeners:
-#     - HTTP (80) → Forward to WordPress target group
+    Listeners:
+    - HTTP (80) → Forward to WordPress target group
 
-#     CloudWatch Alarms:
-#     - Target response time
-#     - Unhealthy target count
-#     - 5xx error count
+    CloudWatch Alarms:
+    - Target response time
+    - Unhealthy target count
+    - 5xx error count
 
-#     Access URL: http://${aws_lb.main.dns_name}
+    Access URL: http://${aws_lb.main.dns_name}
 
-#     Next Steps:
-#     - Phase 9: Create ECS Service
+    Next Steps:
+    - Phase 9: Create ECS Service
 
-#     ========================================
-#   EOT
-# }
+    ========================================
+  EOT
+}
 
 # # ============================================
 # # Phase 9: ECS Service Outputs
