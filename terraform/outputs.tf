@@ -150,12 +150,80 @@ output "phase3_summary" {
   EOT
 }
 
-# # Phase 4: RDS Outputs
-# output "rds_endpoint" {
-#   description = "RDS primary endpoint"
-#   value       = aws_db_instance.primary.endpoint
-#   sensitive   = true
-# }
+# ============================================
+# Phase 4: RDS MySQL Outputs
+# ============================================
+
+output "rds_endpoint" {
+  description = "RDS primary endpoint"
+  value       = aws_db_instance.wordpress.endpoint
+  sensitive   = true
+}
+
+output "rds_address" {
+  description = "RDS instance address"
+  value       = aws_db_instance.wordpress.address
+  sensitive   = true
+}
+
+output "rds_port" {
+  description = "RDS instance port"
+  value       = aws_db_instance.wordpress.port
+}
+
+output "rds_database_name" {
+  description = "RDS database name"
+  value       = aws_db_instance.wordpress.db_name
+}
+
+output "rds_username" {
+  description = "RDS master username"
+  value       = var.db_username
+  sensitive   = true
+}
+
+output "db_secret_arn" {
+  description = "Secrets Manager ARN for database credentials"
+  value       = aws_secretsmanager_secret.db_master_credentials.arn
+}
+
+output "phase4_summary" {
+  description = "Phase 4 deployment summary"
+  value = <<-EOT
+
+    ========================================
+    Phase 4: RDS MySQL Database - Complete
+    ========================================
+
+    Database Configuration:
+    - Instance ID: ${aws_db_instance.wordpress.id}
+    - Engine: MySQL ${aws_db_instance.wordpress.engine_version}
+    - Instance Class: ${var.db_instance_class}
+    - Storage: ${var.db_allocated_storage}GB (Auto-scaling up to 100GB)
+    - Multi-AZ: ${var.db_multi_az}
+
+    Security:
+    - Storage Encrypted: Yes
+    - Credentials stored in Secrets Manager
+    - Secret ARN: ${aws_secretsmanager_secret.db_master_credentials.arn}
+
+    Monitoring:
+    - Enhanced Monitoring: Enabled (60s interval)
+    - Performance Insights: Enabled (7 days retention)
+    - CloudWatch Logs: error, general, slowquery
+    - CloudWatch Alarms: CPU, Storage, Connections
+
+    Backup:
+    - Retention Period: ${var.db_backup_retention_period} days
+    - Backup Window: 03:00-04:00 UTC (12:00-13:00 JST)
+    - Maintenance Window: Mon 04:00-05:00 UTC (13:00-14:00 JST)
+
+    Next Steps:
+    - Phase 5: Create S3 Bucket and CloudFront
+
+    ========================================
+  EOT
+}
 
 # # Phase 5: S3 & CloudFront Outputs
 # output "s3_media_bucket_name" {
