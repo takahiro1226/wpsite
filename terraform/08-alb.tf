@@ -5,31 +5,31 @@
 # Application Load Balancer
 #--------------------------------------------------------------
 
-resource "aws_lb" "main" {
-  name               = "${local.name_prefix}-alb"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = [aws_security_group.alb.id]
-  subnets            = aws_subnet.public[*].id
+# resource "aws_lb" "main" {
+#   name               = "${local.name_prefix}-alb"
+#   internal           = false
+#   load_balancer_type = "application"
+#   security_groups    = [aws_security_group.alb.id]
+#   subnets            = aws_subnet.public[*].id
 
-  enable_deletion_protection = false
-  enable_http2               = true
-  enable_cross_zone_load_balancing = true
+#   enable_deletion_protection = false
+#   enable_http2               = true
+#   enable_cross_zone_load_balancing = true
 
-  # Access logs disabled (can be enabled by creating S3 bucket for logs)
-  # access_logs {
-  #   enabled = true
-  #   bucket  = aws_s3_bucket.alb_logs.id
-  #   prefix  = "alb"
-  # }
+#   # Access logs disabled (can be enabled by creating S3 bucket for logs)
+#   # access_logs {
+#   #   enabled = true
+#   #   bucket  = aws_s3_bucket.alb_logs.id
+#   #   prefix  = "alb"
+#   # }
 
-  tags = merge(
-    local.common_tags,
-    {
-      Name = "${local.name_prefix}-alb"
-    }
-  )
-}
+#   tags = merge(
+#     local.common_tags,
+#     {
+#       Name = "${local.name_prefix}-alb"
+#     }
+#   )
+# }
 
 #--------------------------------------------------------------
 # Target Group for ECS Tasks
