@@ -225,11 +225,79 @@ output "phase4_summary" {
   EOT
 }
 
-# # Phase 5: S3 & CloudFront Outputs
-# output "s3_media_bucket_name" {
-#   description = "S3 media bucket name"
-#   value       = aws_s3_bucket.media.id
-# }
+# ============================================
+# Phase 5: S3 & CloudFront Outputs
+# ============================================
+
+output "s3_media_bucket_name" {
+  description = "S3 media bucket name"
+  value       = aws_s3_bucket.media.id
+}
+
+output "s3_media_bucket_arn" {
+  description = "S3 media bucket ARN"
+  value       = aws_s3_bucket.media.arn
+}
+
+output "cloudfront_distribution_id" {
+  description = "CloudFront distribution ID"
+  value       = aws_cloudfront_distribution.media.id
+}
+
+output "cloudfront_distribution_domain_name" {
+  description = "CloudFront distribution domain name"
+  value       = aws_cloudfront_distribution.media.domain_name
+}
+
+output "cloudfront_distribution_arn" {
+  description = "CloudFront distribution ARN"
+  value       = aws_cloudfront_distribution.media.arn
+}
+
+output "ecs_s3_media_policy_arn" {
+  description = "IAM policy ARN for ECS S3 media access"
+  value       = aws_iam_policy.ecs_s3_media_access.arn
+}
+
+output "phase5_summary" {
+  description = "Phase 5 deployment summary"
+  value = <<-EOT
+
+    ========================================
+    Phase 5: S3 & CloudFront CDN - Complete
+    ========================================
+
+    S3 Configuration:
+    - Bucket Name: ${aws_s3_bucket.media.id}
+    - Versioning: Enabled
+    - Encryption: AES256
+    - Public Access: Blocked
+    - CORS: Enabled for ${var.subdomain}.${var.domain_name}
+
+    CloudFront Configuration:
+    - Distribution ID: ${aws_cloudfront_distribution.media.id}
+    - Domain Name: ${aws_cloudfront_distribution.media.domain_name}
+    - Price Class: PriceClass_200 (US, Europe, Asia, Middle East, Africa)
+    - HTTPS: Enabled (redirect from HTTP)
+    - Origin Access: CloudFront OAC
+
+    Features:
+    - Image compression enabled
+    - Lifecycle policy: Delete old versions after 30 days
+    - CloudWatch Alarms: 4xx/5xx error rates
+    - ECS IAM policy created for S3 access
+
+    CDN URL: https://${aws_cloudfront_distribution.media.domain_name}
+
+    Next Steps:
+    - Phase 6: Create ECR Repository
+    - Phase 7: Create ECS Cluster
+    - Phase 8: Create ALB
+    - Phase 9: Create ECS Service
+
+    ========================================
+  EOT
+}
 
 # # Phase 6: ECS & ALB Outputs
 # output "ecr_repository_url" {
