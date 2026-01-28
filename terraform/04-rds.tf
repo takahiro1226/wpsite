@@ -141,7 +141,7 @@ resource "aws_db_option_group" "wordpress" {
   name_prefix              = "${local.name_prefix}-mysql80-"
   option_group_description = "MySQL 8.0 option group for WordPress"
   engine_name              = "mysql"
-  major_engine_version     = "8.0"
+  major_engine_version     = "8.0.40"
 
   tags = merge(
     local.common_tags,
