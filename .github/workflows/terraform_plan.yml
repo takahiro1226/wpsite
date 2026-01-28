@@ -12,7 +12,6 @@ on:
       - main
     types: [opened, synchronize]
 
-
 permissions:
   id-token: write      # AWS OIDC認証に必須
   contents: read       # リポジトリ読み取り
@@ -32,7 +31,7 @@ jobs:
     strategy:
       matrix:
         directory:
-          - "." # Terraformコードがリポジトリ直下にある場合は "."
+          - "terraform" # Terraformコードが terraform/ ディレクトリにある
     defaults:
       run:
         working-directory: ${{ matrix.directory }}
@@ -40,12 +39,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # ② .terraform-version からバージョンを取得
+      # ② terraform/ ディレクトリの .terraform-version からバージョンを取得
       - name: Get Terraform version
         id: terraform-version
         uses: bigwheel/get-terraform-version-action@v1.2.0
         with:
-          path: "."
+          path: "terraform"
       # 取得したバージョンでセットアップ
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -91,7 +90,7 @@ jobs:
 
       # ③ PRに結果をコメントとして投稿
       - name: Create comment from plan result
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         if: github.event_name == 'pull_request'
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
