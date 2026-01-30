@@ -108,14 +108,14 @@ output "lambda_security_group_id" {
   value       = aws_security_group.lambda.id
 }
 
-# NAT Instance Outputs
-output "nat_instance_ids" {
-  description = "NAT instance IDs"
-  value       = aws_instance.nat[*].id
+# NAT Gateway Outputs
+output "nat_gateway_ids" {
+  description = "NAT Gateway IDs"
+  value       = aws_nat_gateway.main[*].id
 }
 
-output "nat_instance_public_ips" {
-  description = "NAT instance public IPs"
+output "nat_gateway_public_ips" {
+  description = "NAT Gateway public IPs"
   value       = aws_eip.nat[*].public_ip
 }
 
@@ -124,24 +124,25 @@ output "phase3_summary" {
   value = <<-EOT
 
     ========================================
-    Phase 3: Security Groups & NAT - Complete
+    Phase 3: Security Groups & NAT Gateway - Complete
     ========================================
 
     Security Groups:
     - ALB SG: ${aws_security_group.alb.id}
     - ECS SG: ${aws_security_group.ecs.id}
     - RDS SG: ${aws_security_group.rds.id}
-    - NAT SG: ${aws_security_group.nat.id}
     - Lambda SG: ${aws_security_group.lambda.id}
 
-    NAT Instances:
-    - Instance Type: ${var.nat_instance_type}
-    - Instance IDs: ${join(", ", aws_instance.nat[*].id)}
+    NAT Gateways:
+    - Gateway IDs: ${join(", ", aws_nat_gateway.main[*].id)}
     - Public IPs: ${join(", ", aws_eip.nat[*].public_ip)}
+    - Availability Zones: ${join(", ", var.availability_zones)}
 
-    Cost Savings:
-    - Using NAT Instances (~$6/month) instead of NAT Gateway (~$64/month)
-    - Estimated monthly savings: ~$58
+    Benefits:
+    - Managed service (no maintenance required)
+    - High availability within each AZ
+    - Automatic failover
+    - Up to 45 Gbps bandwidth
 
     Next Steps:
     - Phase 4: Create RDS MySQL Database
