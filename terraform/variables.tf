@@ -56,13 +56,6 @@ variable "database_subnet_cidrs" {
   default     = ["10.0.21.0/24", "10.0.22.0/24"]
 }
 
-# NAT Instance (Cost Optimization)
-variable "nat_instance_type" {
-  description = "NAT Instance type"
-  type        = string
-  default     = "t4g.nano"
-}
-
 # RDS
 variable "db_instance_class" {
   description = "RDS instance class"
