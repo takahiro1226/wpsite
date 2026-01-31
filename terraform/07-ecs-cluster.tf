@@ -136,6 +136,28 @@ resource "aws_iam_role_policy" "ecs_task_logs" {
   })
 }
 
+# Custom policy for ECS Exec (SSM Session Manager)
+resource "aws_iam_role_policy" "ecs_task_exec_command" {
+  name_prefix = "${local.name_prefix}-ecs-exec-"
+  role        = aws_iam_role.ecs_task.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "ssmmessages:CreateControlChannel",
+          "ssmmessages:CreateDataChannel",
+          "ssmmessages:OpenControlChannel",
+          "ssmmessages:OpenDataChannel"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
 #--------------------------------------------------------------
 # ECS Task Definition
 #--------------------------------------------------------------
