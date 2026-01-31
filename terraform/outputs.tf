@@ -506,15 +506,87 @@ output "phase9_summary" {
     WordPress URL: http://${aws_lb.main.dns_name}
 
     Next Steps:
-    - Phase 10: Create Route53 DNS and ACM Certificate
-    - Phase 11: Create Lambda for image generation
-    - Phase 12: Create API Gateway webhook
+    - Phase 10: Create EFS for plugin/theme sharing
+    - Phase 11: Create Route53 DNS and ACM Certificate
+    - Phase 12: Create Lambda for image generation
+    - Phase 13: Create API Gateway webhook
 
     ========================================
   EOT
 }
 
-# # # Phase 10+: Route53, Lambda & API Gateway Outputs
+# ============================================
+# Phase 10: EFS Outputs
+# ============================================
+
+output "efs_id" {
+  description = "EFS file system ID"
+  value       = aws_efs_file_system.wordpress.id
+}
+
+output "efs_dns_name" {
+  description = "EFS DNS name"
+  value       = aws_efs_file_system.wordpress.dns_name
+}
+
+output "efs_plugins_access_point_id" {
+  description = "EFS access point ID for plugins"
+  value       = aws_efs_access_point.wordpress_plugins.id
+}
+
+output "efs_themes_access_point_id" {
+  description = "EFS access point ID for themes"
+  value       = aws_efs_access_point.wordpress_themes.id
+}
+
+output "phase10_summary" {
+  description = "Phase 10 deployment summary"
+  value = <<-EOT
+
+    ========================================
+    Phase 10: EFS for Plugin/Theme Sharing - Complete
+    ========================================
+
+    EFS Configuration:
+    - File System ID: ${aws_efs_file_system.wordpress.id}
+    - DNS Name: ${aws_efs_file_system.wordpress.dns_name}
+    - Encryption: Enabled
+    - Performance Mode: General Purpose
+    - Throughput Mode: Bursting
+
+    Access Points:
+    - Plugins AP: ${aws_efs_access_point.wordpress_plugins.id}
+    - Themes AP: ${aws_efs_access_point.wordpress_themes.id}
+
+    Mount Targets:
+    - AZ Count: ${length(var.availability_zones)}
+    - Subnets: ${join(", ", aws_subnet.private[*].id)}
+
+    Lifecycle Management:
+    - Transition to IA: After 30 days of no access
+    - Transition back: After 1 access
+
+    Benefits:
+    - Shared plugin/theme storage across ECS tasks
+    - WordPress admin can install/update plugins dynamically
+    - Automatic synchronization between tasks
+    - Cost optimization with lifecycle policies
+
+    CloudWatch Alarms:
+    - Burst credit balance monitoring
+    - Client connections monitoring
+
+    Next Steps:
+    - Rebuild and push Docker image to ECR (plugin pre-installation removed)
+    - Update ECS service to use new task definition with EFS mounts
+    - Verify WordPress can access shared storage
+    - Phase 11: Create Route53 DNS and ACM Certificate
+
+    ========================================
+  EOT
+}
+
+# # # Phase 11+: Route53, Lambda & API Gateway Outputs
 # # output "api_gateway_url" {
 # #   description = "API Gateway webhook URL"
 # #   value       = "${aws_api_gateway_deployment.prod.invoke_url}${aws_api_gateway_resource.webhook.path}"

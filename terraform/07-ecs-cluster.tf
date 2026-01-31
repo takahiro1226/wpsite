@@ -149,6 +149,33 @@ resource "aws_ecs_task_definition" "wordpress" {
   execution_role_arn       = aws_iam_role.ecs_task_execution.arn
   task_role_arn            = aws_iam_role.ecs_task.arn
 
+  # EFS Volumes
+  volume {
+    name = "wordpress-plugins"
+
+    efs_volume_configuration {
+      file_system_id     = aws_efs_file_system.wordpress.id
+      transit_encryption = "ENABLED"
+      authorization_config {
+        access_point_id = aws_efs_access_point.wordpress_plugins.id
+        iam             = "DISABLED"
+      }
+    }
+  }
+
+  volume {
+    name = "wordpress-themes"
+
+    efs_volume_configuration {
+      file_system_id     = aws_efs_file_system.wordpress.id
+      transit_encryption = "ENABLED"
+      authorization_config {
+        access_point_id = aws_efs_access_point.wordpress_themes.id
+        iam             = "DISABLED"
+      }
+    }
+  }
+
   container_definitions = jsonencode([
     {
       name      = "wordpress"
@@ -159,6 +186,20 @@ resource "aws_ecs_task_definition" "wordpress" {
         {
           containerPort = 80
           protocol      = "tcp"
+        }
+      ]
+
+      # EFS Mount Points
+      mountPoints = [
+        {
+          sourceVolume  = "wordpress-plugins"
+          containerPath = "/var/www/html/wp-content/plugins"
+          readOnly      = false
+        },
+        {
+          sourceVolume  = "wordpress-themes"
+          containerPath = "/var/www/html/wp-content/themes"
+          readOnly      = false
         }
       ]
 

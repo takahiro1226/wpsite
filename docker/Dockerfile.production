@@ -1,7 +1,9 @@
 FROM wordpress:latest
 
-# 本番用の最小構成
-# Lambda方式のため、AWS SDKやComposerは不要
+# 本番用の最小構成（EFS使用）
+# - プラグイン/テーマはEFSから提供されるため事前インストール不要
+# - WordPress管理画面からプラグインを動的にインストール・更新可能
+# - Lambda方式のため、AWS SDKやComposerは不要
 
 # 基本パッケージのインストール（最小限）
 RUN apt-get update && apt-get install -y \
@@ -17,20 +19,6 @@ RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.ph
     chmod +x wp-cli.phar && \
     mv wp-cli.phar /usr/local/bin/wp
 
-# プラグインの事前ダウンロードと配置
-# ビルド時はDB接続がないため「install」ではなく「ファイルを置く」処理を行います
-WORKDIR /usr/src/wordpress/wp-content/plugins
-
-RUN set -ex; \
-# WP Webhooks のダウンロードと解凍
-    wget -q -O wp-webhooks.zip https://downloads.wordpress.org/plugin/wp-webhooks.3.4.0.zip \
-    && unzip -q -o 'wp-webhooks.zip' -d /usr/src/wordpress/wp-content/plugins \
-# WP Offload Media Lite (Amazon S3 and CloudFront) のダウンロードと解凍
-    && wget -q -O amazon-s3-and-cloudfront.zip https://downloads.wordpress.org/plugin/amazon-s3-and-cloudfront.3.2.11.zip \
-    && unzip -q -o '*.zip' -d /usr/src/wordpress/wp-content/plugins \
-    && chown -R www-data:www-data /usr/src/wordpress/wp-content/plugins \
-    && rm -f *.zip
-
 # 本番用のPHP設定
 RUN { \
     echo 'upload_max_filesize = 64M'; \
@@ -43,12 +31,5 @@ RUN { \
 # パーミッション設定
 WORKDIR /var/www/html
 RUN chown -R www-data:www-data /var/www/html
-
-
-# ヘルスチェック設定
-HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
-  CMD curl -f http://localhost/ || exit 1
-
-WORKDIR /var/www/html
 
 EXPOSE 80
