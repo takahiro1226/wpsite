@@ -72,14 +72,14 @@ output "phase2_summary" {
     - Database Subnets: ${length(aws_subnet.database)} (${join(", ", aws_subnet.database[*].id)})
     
     Next Steps:
-    - Phase 3: Create Security Groups and NAT Instances
+    - Phase 3: Create Security Groups and NAT Gateway
     
     ========================================
   EOT
 }
 
 # ============================================
-# Phase 3: Security Groups and NAT Instance Outputs
+# Phase 3: Security Groups
 # ============================================
 
 # Security Group Outputs
@@ -98,10 +98,6 @@ output "rds_security_group_id" {
   value       = aws_security_group.rds.id
 }
 
-output "nat_security_group_id" {
-  description = "NAT instance security group ID"
-  value       = aws_security_group.nat.id
-}
 
 output "lambda_security_group_id" {
   description = "Lambda security group ID"
