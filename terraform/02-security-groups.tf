@@ -164,6 +164,55 @@ resource "aws_vpc_security_group_egress_rule" "rds_all" {
 
 
 #--------------------------------------------------------------
+# EFS Security Group
+#--------------------------------------------------------------
+
+resource "aws_security_group" "efs" {
+  name_prefix = "${local.name_prefix}-efs-"
+  description = "Security group for EFS mount targets"
+  vpc_id      = aws_vpc.main.id
+
+  tags = merge(
+    local.common_tags,
+    {
+      Name = "${local.name_prefix}-efs-sg"
+    }
+  )
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# EFS Ingress Rules
+resource "aws_vpc_security_group_ingress_rule" "efs_from_ecs" {
+  security_group_id = aws_security_group.efs.id
+  description       = "Allow NFS from ECS tasks"
+
+  referenced_security_group_id = aws_security_group.ecs.id
+  from_port                    = 2049
+  to_port                      = 2049
+  ip_protocol                  = "tcp"
+
+  tags = {
+    Name = "efs-from-ecs-ingress"
+  }
+}
+
+# EFS Egress Rules (not typically needed, but added for completeness)
+resource "aws_vpc_security_group_egress_rule" "efs_all" {
+  security_group_id = aws_security_group.efs.id
+  description       = "Allow all outbound traffic"
+
+  cidr_ipv4   = "0.0.0.0/0"
+  ip_protocol = "-1"
+
+  tags = {
+    Name = "efs-all-egress"
+  }
+}
+
+#--------------------------------------------------------------
 # Lambda Security Group (for VPC-attached Lambda)
 #--------------------------------------------------------------
 
